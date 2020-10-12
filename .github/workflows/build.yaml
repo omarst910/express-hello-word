@@ -38,7 +38,8 @@ jobs:
   deploy:
     name: Deploy Application
     runs-on: ubuntu-latest
-      
+    needs: build
+
     env:
       HELM_REPO: "https://omarst910.github.io/charts"
       CHART: "myrepo/hello-world-chart"
