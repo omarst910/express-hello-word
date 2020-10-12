@@ -44,7 +44,7 @@ jobs:
       CHART: "myrepo/hello-world-chart"
       PROJECT_ID: "ci-cd-demo-292301"
       GKE_ZONE: "us-central1-c"
-      GKE_CLUSTER: "cluster-1"
+      GKE_CLUSTER: "demo-cluster"
 
     steps:
       # Install helm
