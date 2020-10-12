@@ -8,7 +8,9 @@ jobs:
   build:
     name: Build image
     runs-on: ubuntu-latest
-      
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+
     env:
       HELM_REPO: "https://omarst910.github.io/charts"
       CHART: "myrepo/hello-world-chart"
@@ -72,5 +74,5 @@ jobs:
   
             helm upgrade --install demo-chart ${CHART} \
             --set image.repository=gcr.io/${{env.PROJECT_ID}}/express-hello-world \
-            --set image.tag=${{ steps.get_version.outputs.VERSION }} \
+            --set image.tag=${{ needs.build.outputs.version }} \
           --wait
