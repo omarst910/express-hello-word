@@ -13,6 +13,7 @@ jobs:
       HELM_REPO: "https://omarst910.github.io/charts"
       CHART: "myrepo/hello-world-chart"
       PROJECT_ID: "ci-cd-demo-292301"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -33,3 +34,42 @@ jobs:
           image: ${{env.PROJECT_ID}}/express-hello-world
           tag: ${{ steps.get_version.outputs.VERSION }}
           gcloud_key: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+      
+    env:
+      HELM_REPO: "https://omarst910.github.io/charts"
+      CHART: "myrepo/hello-world-chart"
+      PROJECT_ID: "ci-cd-demo-292301"
+      GKE_ZONE: "us-central1-c"
+      GKE_CLUSTER: "cluster-1"
+
+    steps:
+      # Install helm
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash        
+      
+
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
+          export_default_credentials: true        
+      
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        run: |
+          gcloud container clusters get-credentials ${{env.GKE_CLUSTER}} \
+            --zone ${{env.GKE_ZONE}} \
+            --project ${{env.PROJECT_ID}}
+            helm repo add myrepo ${HELM_REPO}        
+  
+            helm upgrade --install demo-chart ${CHART} \
+            --set image.repository=gcr.io/${{env.PROJECT_ID}}/express-hello-world \
+            --set image.tag=${{ steps.get_version.outputs.VERSION }} \
+          --wait
