@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: hello-world
+  name: hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: hello-world
+    spec:
+      volumes:
+        - name: example-volume
+          secret:
+            secretName: example-secret
+      containers:
+      - image: omarst910/express-hello-world:v1.0
+        name: express-hello-world
+        resources: {}
+        volumeMounts:
+          - name: example-volume
+            mountPath: /var/credentials

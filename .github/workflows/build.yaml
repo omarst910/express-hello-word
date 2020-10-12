@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+      
+    env:
+      HELM_REPO: "https://omarst910.github.io/charts"
+      CHART: "myrepo/hello-world-chart"
+      PROJECT_ID: "ci-cd-demo-292301"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+
+      - name: Docker Build
+        uses: benjlevesque/actions-docker-gcr/build@v1.1
+        with:
+          image: ${{env.PROJECT_ID}}/express-hello-world
+          tag: ${{ steps.get_version.outputs.VERSION }}
+
+      - name: Docker Push
+        uses: benjlevesque/actions-docker-gcr/push@v1.1
+        with:
+          image: ${{env.PROJECT_ID}}/express-hello-world
+          tag: ${{ steps.get_version.outputs.VERSION }}
+          gcloud_key: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
